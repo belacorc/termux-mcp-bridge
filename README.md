@@ -13,6 +13,7 @@ AI client ──HTTPS──▶ Cloudflare quick tunnel ──▶ 127.0.0.1:8765 
 - **One-line install.** Nothing to configure and no accounts to create.
 - **No port forwarding.** Uses a free Cloudflare quick tunnel, so it works on mobile data and any Wi-Fi.
 - **Self-healing.** A watchdog restarts the server and tunnel when the connection drops.
+- **Permanent link** with an optional free Cloudflare Worker relay.
 - **Never copy links again.** Each new tunnel URL is published to your private [ntfy](https://ntfy.sh) topic, so your AI client always finds the current one.
 - **Autostart after reboot** via Termux:Boot.
 - **Zero npm dependencies.** About 120 lines of plain Node.js.
@@ -72,6 +73,21 @@ export BRIDGE_TOPIC=pb-xxxxxxxx
 ./client/phone.sh shell '{"command":"uname -a"}'
 ```
 
+## 🔗 Permanent link (optional, free)
+
+Quick tunnel URLs change on every restart, so a chat AI (Claude, ChatGPT) would need the new link each time. Fix it with the tiny Cloudflare Worker in [`relay/worker.js`](relay/worker.js). It reads the current URL from your ntfy topic and proxies requests there, so your link **never changes**:
+
+```
+https://phone.<your-subdomain>.workers.dev/mcp/<token>
+```
+
+1. Create a free Cloudflare account and go to **Workers & Pages → Create → Start with Hello World**. Name it `phone` and deploy.
+2. Click **Edit code**, paste `relay/worker.js`, then **Deploy**.
+3. Under **Settings → Variables and Secrets**, add a secret `TOPIC` with your ntfy topic.
+4. Use `https://phone.<your-subdomain>.workers.dev/mcp/<token>` in your AI client. The token is in `~/.bridge_token`.
+
+The worker only forwards `/mcp/*` paths and the phone still checks the token, so a wrong token gets 404.
+
 ## 🔒 Security
 
 > ⚠️ **The MCP link = full shell access to your Termux.** Treat it like a password.
@@ -92,6 +108,7 @@ export BRIDGE_TOPIC=pb-xxxxxxxx
 | `boot.sh` | Termux:Boot autostart script |
 | `install.sh` | One-line installer |
 | `client/phone.sh` | Call tools from any machine via ntfy lookup |
+| `relay/worker.js` | Optional Cloudflare Worker for a permanent link |
 
 ## 📄 License
 

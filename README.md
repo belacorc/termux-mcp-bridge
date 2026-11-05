@@ -1,5 +1,7 @@
 # 📱 termux-mcp-bridge
 
+🌐 [English](README.md) · [Русский](README.ru.md) · [Čeština](README.cs.md)
+
 **Give your AI assistant hands on your Android phone.**
 A tiny, zero-dependency [MCP](https://modelcontextprotocol.io) server that runs in [Termux](https://termux.dev) and lets AI clients like Claude, ChatGPT or Notion AI run commands, open apps, send notifications, read battery and location, and more. No root, no ADB, no PC needed.
 

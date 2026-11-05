@@ -52,6 +52,14 @@ The installer prints your **MCP link** and your **private ntfy topic**.
 { "mcpServers": { "phone": { "url": "https://xxxx.trycloudflare.com/mcp/<token>" } } }
 ```
 
+### Local stdio mode
+
+To run it from a local MCP client inside Termux, without the tunnel:
+
+```json
+{ "mcpServers": { "phone": { "command": "node", "args": ["/data/data/com.termux/files/home/termux-mcp-bridge/bridge.mjs", "--stdio"] } } }
+```
+
 ## 🔁 Daily use
 
 ```bash

@@ -96,7 +96,7 @@ async function handle(m) {
   if (method === 'ping') return ok({});
   if (method === 'tools/list') return ok({ tools: TOOLS });
   if (method === 'tools/call') {
-    console.log(new Date().toISOString(), 'call', params?.name);
+    console.error(new Date().toISOString(), 'call', params?.name);
     try { return ok({ content: [{ type: 'text', text: await callTool(params?.name, params?.arguments || {}) }] }); }
     catch (e) { return ok({ content: [{ type: 'text', text: 'Error: ' + e.message }], isError: true }); }
   }
@@ -104,7 +104,16 @@ async function handle(m) {
   return { jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found: ' + method } };
 }
 
-http.createServer(async (req, res) => {
+if (process.argv.includes('--stdio')) {
+  // stdio transport (newline-delimited JSON-RPC) for local MCP clients and registry checks
+  const rl = (await import('node:readline')).createInterface({ input: process.stdin });
+  rl.on('line', async line => {
+    if (!line.trim()) return;
+    let msg; try { msg = JSON.parse(line); } catch { return; }
+    const out = await handle(msg);
+    if (out) process.stdout.write(JSON.stringify(out) + '\n');
+  });
+} else http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   if (url.pathname !== PATH) { res.writeHead(404); return res.end('not found'); }
   if (req.method === 'DELETE') { res.writeHead(200); return res.end(); }
